@@ -41,7 +41,7 @@ The library defines these headers:
       -  **void Load()**: Takes a path to list file (can be called multiple times to load multiple files).
       -  **bool isEmpty()**: returns false if no plugin is loaded (Invalid plugins are counted).
       -  **size(), begin(), end()** which adds support for foreach
-      -  **operator[], Get()**: takes an index and returns a **_std::shared_ptr<Plugin>_** if the index is valid.
+      -  **operator[], Get()**: takes an index and returns a **_std::shared_ptr\<Plugin\>_** if the index is valid.
 
 
 ## Examples
