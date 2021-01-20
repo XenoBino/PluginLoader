@@ -1,6 +1,6 @@
 
 # Variables for installation
-INCLUDE_DIR=/usr/include
+INCLUDE_DIR=/usr/include/
 LIB_DIR=/usr/lib/
 
 all:
@@ -11,6 +11,6 @@ all:
 clean:
 	rm -rf Build/*
 
-install:
+install: all
 	sudo cp -r include/Plugin ${INCLUDE_DIR}
-	sudo cp Build/PluginLoader.so ${LIB_DIR}
+	sudo cp Build/libPluginLoader.so ${LIB_DIR}
