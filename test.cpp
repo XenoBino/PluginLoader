@@ -1,65 +1,9 @@
-/*
-
-#include <string>
-#include <vector>
-#include <memory>
-
-class Plugin {
-public:
-	Plugin(const char *file);
-	~Plugin();
-
-	void Start(void *API_Handle) const;
-	bool isValid() const;
-	const char *GetFile() const;
-private:
-	void *m_Handle;
-	void *m_Entry;
-
-	bool m_Valid;
-	std::string m_File;
-};
-
-
-class PluginLoader {
-public:
-	PluginLoader();
-
-	void Load(const char *ListFile);
-	bool isEmpty() const;
-public:
-	std::shared_ptr<Plugin> Get(size_t index) const;
-	std::shared_ptr<Plugin> operator[](size_t index) const;
-
-	size_t size() const;
-	const std::shared_ptr<Plugin>* begin() const;
-	const std::shared_ptr<Plugin>* end() const;
-private:
-	std::vector<std::shared_ptr<Plugin>> m_Plugins;
-	std::vector<const char *> m_ListFiles;
-
-	std::string m_ListFile;
-	size_t m_PluginCount;
-};
-*/
-
-#include "Plugin/PluginLoader.h"
 #include <iostream>
 
+#include "Plugin/PluginLoader.h"
+#include "Test/API.h"
+
 void show_usage();
-
-class API {
-public:
-	void SetValue(unsigned int v) {
-		x = v;
-	}
-
-	unsigned int GetValue() const {
-		return x;
-	}
-private:
-	unsigned int x;
-};
 
 int main(int argc, char **argv) {
 	if (argc < 2) {

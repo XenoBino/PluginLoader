@@ -1,17 +1,5 @@
 #include <iostream>
-
-class API {
-public:
-	void SetValue(unsigned int v) {
-		x = v;
-	}
-
-	unsigned int GetValue() const {
-		return x;
-	}
-private:
-	unsigned int x;
-};
+#include "API.h"
 
 extern "C" {
 	void PluginEntry(void* API_Handle) {
