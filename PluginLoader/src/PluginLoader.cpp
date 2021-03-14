@@ -4,7 +4,7 @@
 #include <fstream>
 #include <stdexcept>
 
-PluginLoader::PluginLoader() : m_PluginCount(0) {}
+PluginLoader::PluginLoader(void *API_Handle) : m_PluginCount(0), m_API_Handle(API_Handle) {}
 
 void PluginLoader::Load(const char *ListFile) {
 	m_ListFiles.push_back(ListFile);
@@ -22,7 +22,7 @@ void PluginLoader::Load(const char *ListFile) {
 		if (Line == "")
 			continue;
 
-		m_Plugins.push_back(std::make_shared<Plugin>(Line.c_str()));
+		m_Plugins.push_back(std::make_shared<Plugin>(Line.c_str(), m_API_Handle));
 		Line = "";
 	}
 
