@@ -3,4 +3,4 @@
 mkdir -p Build
 cmake . -BBuild/
 cmake --build Build/
-echo -e "Build/PluginTest" > .type
+echo -e "Build/PluginLoaderTest" > .type
