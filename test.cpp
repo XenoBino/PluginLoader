@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 	API *API_Handle = new API();
 	API_Handle->SetValue(x);
 
-	PluginLoader loader;
+	PluginLoader loader((void *)API_Handle);
 	loader.Load(argv[1]);
 
 	std::shared_ptr<Plugin> test = loader.Get(0);
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
 
 
 	std::cout << "value before call is " << API_Handle->GetValue() << std::endl;
-	test->Start((void*)API_Handle);
+	test->Start();
 	std::cout << "value after call is " << API_Handle->GetValue() << std::endl;
 
 	return 0;
