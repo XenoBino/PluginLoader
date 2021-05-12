@@ -1,2 +1,5 @@
-*Build/
+# Directories
+Build/
+
+# Xeno Files
 .type
