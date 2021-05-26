@@ -6,6 +6,16 @@
 #include <cstdio>	// malloc
 #include <cstring>	// memcpy, memset
 
+// ProcTypes
+#define XENOPL_INIT_PROC                (bool(*)(void *))
+#define XENOPL_START_PROC               (void(*)(void *))
+#define XENOPL_DESTROY_PROC             (void(*)())
+#define XENOPL_GETNAME_PROC             (char *(*)())
+#define XENOPL_GETVERSION_PROC          (short int(*)())
+#define XENOPL_GETVERSIONSTRING_PROC    (char *(*)())
+
+#define XENOPL_EXEC(type, proc, ...) ((type)proc)(__VA_ARGS__))
+
 bool LoadPROC(void *handle, void **proc, const char *name) {
 	char *error;
 	*proc = dlsym(handle, name);
@@ -18,61 +28,62 @@ bool LoadPROC(void *handle, void **proc, const char *name) {
 }
 
 Plugin::Plugin(const char *file, void *API_Handle) : m_Valid(true), m_API_Handle(API_Handle) {
+	// Copy the name
+	size_t NameLength = strlen(file) + 1;
+	m_SourceFile = (char *)malloc(NameLength);
+	memset(m_SourceFile, 0x00, NameLength);
+	strncpy(m_SourceFile, file, NameLength - 1);
+
+	// Open the library
 	m_Handle = dlopen(file, RTLD_LAZY);
 
 	if (!m_Handle) {
 		std::cerr << "Error: " << dlerror() << std::endl;
 		m_Valid = false;
+		return;
 	}
 
-	dlerror();
+//	dlerror();
 
-	// Load functions
-	m_Valid = (
-		LoadPROC(m_Handle, &m_OnInit_PROC, "OnInit") &&
+	// Load and check for errors
+	if (!(LoadPROC(m_Handle, &m_OnInit_PROC, "OnInit") &&
 		LoadPROC(m_Handle, &m_OnStart_PROC, "OnStart") &&
-		LoadPROC(m_Handle, &m_OnDestroy_PROC, "OnDestroy")/* &&
+		LoadPROC(m_Handle, &m_OnDestroy_PROC, "OnDestroy")
+	)) return;
 
-		LoadPROC(m_Handle, &m_GetName_PROC, "GetName") &&
-		LoadPROC(m_Handle, &m_GetVersion_PROC, "GetVersion") &&
-		LoadPROC(m_Handle, &m_GetVersionString_PROC, "GetVersionString")*/
-	);
 
-	if (m_Valid) {
-		// Execute the OnInit Function
-		if (((bool(*)(void *))m_OnInit_PROC)(API_Handle)) {
-			FillInfo();
-		}
-		else {
-			m_Valid = false;
-		}
-	}
-
-	size_t NameLength = strlen(file) + 1;
-	m_SourceFile = (char *)malloc(NameLength);
-	memset(m_SourceFile, 0x00, NameLength);
-	memcpy(m_SourceFile, file, NameLength - 1);
+	// Execute the OnInit Function
+	// ((bool(*)(void *))m_OnInit_PROC)(API_Handle))
+	if (XENOPL_EXEC((XENOPL_INIT_PROC), m_OnInit_PROC, API_Handle))
+		FillInfo();
+	else
+		m_Valid = false;
 }
 
 Plugin::~Plugin() {
-	(( void(*)() )m_OnDestroy_PROC) ();
+//	(( void(*)() )m_OnDestroy_PROC) ();
+	XENOPL_EXEC(XENOPL_DESTROY_PROC, m_OnDestroy_PROC);
 	dlclose(m_Handle);
 }
 
 void Plugin::FillInfo() {
 	void *tmp;
+
+	// Get plugin name
 	if (LoadPROC(m_Handle, &tmp, "GetName"))
-		m_Name = ( ( char *(*)() )tmp )();
+		m_Name = XENOPL_EXEC(XENOPL_GETNAME_PROC, tmp);
 	else
 		m_Valid = false;
 
+	// Get plugin version
 	if (LoadPROC(m_Handle, &tmp, "GetVersion"))
-		m_Version = ( ( short int(*)() )tmp )();
+		m_Version = XENOPL_EXEC(XENOPL_GETNAME_PROC, tmp);
 	else
 		m_Valid = false;
 
+	// Get plugin version string
 	if (LoadPROC(m_Handle, &tmp, "GetVersionString"))
-		m_VersionString = ( ( char *(*)() )tmp)();
+		m_VersionString = XENOPL_EXEC(XENOPL_GETVERSIONSTRING_PROC, tmp);
 	else
 		m_Valid = false;
 }
@@ -90,7 +101,6 @@ bool Plugin::isValid() const {
 }
 
 void Plugin::Start() const {
-	if (m_Valid) {
-		(( void(*)(void *) )m_OnStart_PROC) (m_API_Handle); // convert to `void OnStart(void *API)` then execute
-	}
+	if (m_Valid)
+		XENOPL_EXEC(XENOPL_START_PROC, m_OnStart_PROC, m_API_Handle);
 }
